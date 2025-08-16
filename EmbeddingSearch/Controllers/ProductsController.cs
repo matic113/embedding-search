@@ -1,5 +1,6 @@
 ﻿using EmbeddingSearch.Data;
 using EmbeddingSearch.Models;
+using EmbeddingSearch.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,10 +11,12 @@ namespace EmbeddingSearch.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly EmbeddingService _embeddingService;
 
-        public ProductsController(ApplicationDbContext context)
+        public ProductsController(ApplicationDbContext context, EmbeddingService embeddingService)
         {
             _context = context;
+            _embeddingService = embeddingService;
         }
 
         [HttpPost]
@@ -49,9 +52,21 @@ namespace EmbeddingSearch.Controllers
 
             var products = await _context.Products
                 .Where(p => EF.Functions.ToTsVector("english", p.Name + " " + p.Description)
-                    .Matches(EF.Functions.PlainToTsQuery(query)))
+                    .Matches(EF.Functions.PhraseToTsQuery(query)))
                 .ToListAsync();
             return Ok(products);
+        }
+
+        [HttpGet("embeddings")]
+        public async Task<IActionResult> SearchProductsByEmbeddings(string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return BadRequest("Query cannot be empty");
+            }
+            var queryVector = await _embeddingService.GetEmbeddingsAsync(query);
+
+            return Ok(queryVector);
         }
     }
 }
