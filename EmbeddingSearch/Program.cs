@@ -46,4 +46,8 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+app.MapPost("/seed-embeddings", (IServiceProvider serviceProvider) => 
+    ProductEmbeddingsSeeder.SeedProductEmbeddings(serviceProvider)
+);
+
 app.Run();

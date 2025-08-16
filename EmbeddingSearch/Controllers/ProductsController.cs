@@ -3,6 +3,7 @@ using EmbeddingSearch.Models;
 using EmbeddingSearch.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Pgvector.EntityFrameworkCore;
 
 namespace EmbeddingSearch.Controllers
 {
@@ -57,16 +58,33 @@ namespace EmbeddingSearch.Controllers
             return Ok(products);
         }
 
-        [HttpGet("embeddings")]
-        public async Task<IActionResult> SearchProductsByEmbeddings(string query)
+        [HttpGet("search/embeddings")]
+        public async Task<IActionResult> SearchProductsByEmbeddings(string query, int limit = 5)
         {
             if (string.IsNullOrWhiteSpace(query))
             {
                 return BadRequest("Query cannot be empty");
             }
+
             var queryVector = await _embeddingService.GetEmbeddingsAsync(query);
 
-            return Ok(queryVector);
+            if (queryVector is null)
+            {
+                return BadRequest("Failed to generate embeddings for the query");
+            }
+
+            var products = await _context.Products
+                .OrderBy(p => p.Embeddings!.CosineDistance(queryVector))
+                .Take(limit)
+                .Select(p => new
+                {
+                    p.Id,
+                    p.Name,
+                    p.Description
+                })
+                .ToListAsync();
+
+            return Ok(products);
         }
     }
 }

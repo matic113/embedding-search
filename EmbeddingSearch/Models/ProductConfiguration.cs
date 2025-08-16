@@ -12,9 +12,15 @@ namespace EmbeddingSearch.Models
                 .IsTsVectorExpressionIndex("english");
 
             builder.Property(p => p.Embeddings)
-                .HasColumnType("vector")
+                .HasColumnType("vector(1536)")
                 .HasPrecision(1536) // Adjust precision based on your embedding size
                 .HasComment("Embeddings for product search");
+
+            builder.HasIndex(p => p.Embeddings)
+                .HasMethod("hnsw")
+                .HasOperators("vector_cosine_ops")
+                .HasStorageParameter("m", 16)
+                .HasStorageParameter("ef_construction", 64);
         }
     }
 }
