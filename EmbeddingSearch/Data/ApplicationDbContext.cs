@@ -7,8 +7,10 @@ namespace EmbeddingSearch.Data
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
+            modelBuilder.HasPostgresExtension("vector");
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+
+            base.OnModelCreating(modelBuilder);
         }
 
         public DbSet<Product> Products { get; set; } = null!;

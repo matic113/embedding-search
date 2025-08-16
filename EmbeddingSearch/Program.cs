@@ -8,7 +8,8 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<ApplicationDbContext>(opt => 
-    opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+    opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
+    o=> o.UseVector())
     );
     
 var app = builder.Build();
