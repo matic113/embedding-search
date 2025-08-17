@@ -59,7 +59,7 @@ namespace EmbeddingSearch.Controllers
         }
 
         [HttpGet("search/embeddings")]
-        public async Task<IActionResult> SearchProductsByEmbeddings(string query, int limit = 5)
+        public async Task<IActionResult> SearchProductsByEmbeddings(string query, int limit = 5, float threshold = 0.5f)
         {
             if (string.IsNullOrWhiteSpace(query))
             {
@@ -74,13 +74,15 @@ namespace EmbeddingSearch.Controllers
             }
 
             var products = await _context.Products
+                .Where(p => p.Embeddings!.CosineDistance(queryVector) < threshold)
                 .OrderBy(p => p.Embeddings!.CosineDistance(queryVector))
                 .Take(limit)
-                .Select(p => new
+                .Select(p => new ProductDto
                 {
-                    p.Id,
-                    p.Name,
-                    p.Description
+                    Id = p.Id,
+                    Name = p.Name,
+                    Description = p.Description,
+                    Distance = p.Embeddings!.CosineDistance(queryVector)
                 })
                 .ToListAsync();
 
