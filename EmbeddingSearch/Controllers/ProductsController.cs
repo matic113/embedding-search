@@ -30,6 +30,11 @@ namespace EmbeddingSearch.Controllers
 
             var product = new Product { Name = request.ProductName, Description = request.ProductDescription };
 
+            var embeddingContent = $"{product.Name} {product.Description}";
+            var embeddings = await _embeddingService.GetEmbeddingsAsync(embeddingContent);
+
+            product.Embeddings = embeddings;
+
             await _context.Products.AddAsync(product);
             await _context.SaveChangesAsync();
 
