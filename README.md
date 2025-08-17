@@ -45,9 +45,9 @@ Update your `appsettings.json` with these values:
 {
   "AzureOpenAI": {
     "Embeddings": {
-      "Endpoint": "https://your-azure-openai-endpoint/",
-      "Key": "your-azure-openai-key",
-      "DeploymentName": "your-deployment-name"
+      "Endpoint": "https://your-azure-openai-endpoint/", // base URL of your Azure OpenAI resource
+      "Key": "your-azure-openai-key", // the api key associated with your Azure OpenAI resource
+      "DeploymentName": "your-deployment-name" // e.g., "text-embedding-ada-002"
     }
   }
 }
