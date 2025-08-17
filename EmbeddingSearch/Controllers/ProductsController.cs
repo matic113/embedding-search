@@ -59,6 +59,12 @@ namespace EmbeddingSearch.Controllers
             var products = await _context.Products
                 .Where(p => EF.Functions.ToTsVector("english", p.Name + " " + p.Description)
                     .Matches(EF.Functions.PhraseToTsQuery(query)))
+                .Select(p => new
+                {
+                    p.Id,
+                    p.Name,
+                    p.Description
+                })
                 .ToListAsync();
             return Ok(products);
         }
